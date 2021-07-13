@@ -1,0 +1,15 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+?>
+
+<label for="<?php echo $this->getUniqId(); ?>"><?php echo Mage::helper('payzen')->__('Shipping Address') ?> :</label>
+<div class="input-box" style="clear: both; display: block;">
+    <?php echo $this->getHtmlSelect() ?>
+</div>

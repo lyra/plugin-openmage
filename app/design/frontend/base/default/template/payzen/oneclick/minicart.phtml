@@ -1,0 +1,32 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+$cart = Mage::getSingleton('checkout/cart');
+$buttonTitle = $this->getConfigData('one_click_title') ? $this->getConfigData('one_click_title') : Mage::helper('payzen')->__('Buy now');
+
+if ($cart->getItemsCount() && $this->isOneclickAvailable()) :
+    $style = $cart->getQuote()->isVirtual() ? '' : ' style="background-color: #f4f4f4; border: 1px solid #cccccc; padding: 5px;"';
+?>
+    <li>
+        <form id="payzen_minicart_oneclick_form" method="post" action="<?php echo $this->getUrl('payzen/payment/oneclickPayment', array('_secure' => true)) ?>"<?php echo $style; ?>>
+            <?php if (! $cart->getQuote()->isVirtual()) : ?>
+                <?php echo $this->getChildHtml('payzen_shipping'); ?>
+            <?php endif; ?>
+
+            <button type="button" title="<?php echo $buttonTitle ?>" class="button btn-cart" onclick="$('payzen_minicart_oneclick_form').submit();">
+                <span><span><?php echo $buttonTitle ?></span></span>
+            </button>
+        </form>
+    </li>
+
+    <li>
+        <span><?php echo Mage::helper('payzen')->__('OR');?></span>
+    </li>
+<?php endif; ?>

@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+?>
+
+<?php echo $this->getChildHtml('payzen_iframe_loader'); ?>
+
+<form id="payzen_payment_iframe_form" method="POST" action="<?php echo $this->getFormAction();?>"  method="POST">
+    <?php foreach ($this->getFormFields() as $key => $value) :?>
+        <input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>">
+    <?php endforeach;?>
+</form>
+
+<script type="text/javascript">
+    var redirect = new VarienForm('payzen_payment_iframe_form', '');
+    Event.observe(window, 'load', function() {
+        redirect.submit();
+    });
+</script>
