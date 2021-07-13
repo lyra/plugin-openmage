@@ -1,0 +1,86 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+?>
+
+<?php
+$htmlId = $this->getHtmlId() ? $this->getHtmlId() : uniqid('_' . $this->getElement()->getId() . '_');
+?>
+
+<div id="<?php echo $this->getElement()->getId() ?>" class="grid">
+    <table cellspacing="0" cellpadding="0" class="border" id="grid<?php echo $htmlId ?>">
+        <tbody>
+            <tr class="headings" id="headings<?php echo $htmlId ?>">
+                <?php foreach ($this->_columns as $columnName => $column): ?>
+                    <th><?php echo $column['label'] ?></th>
+                <?php endforeach; ?>
+            </tr>
+        </tbody>
+    </table>
+
+    <input type="hidden" name="<?php echo $this->getElement()->getName() ?>[__empty]" value="" />
+</div>
+
+<script type="text/javascript">
+    // Create row creator.
+    var arrayRow<?php echo $htmlId ?> = {
+        // Define row prototypeJS template.
+        template : new Template(
+            '<tr id="#{_id}<?php echo $htmlId ?>">'
+                <?php foreach ($this->_columns as $columnName => $column): ?>
+                    +'<td>'
+                        +'<?php echo $this->_renderCellTemplate($columnName) ?>'
+                    +'<\/td>'
+                <?php endforeach; ?>
+            +'<\/tr>'
+        ),
+
+        rowsCount : 0,
+
+        add : function(templateData, insertAfterId) {
+            // Generate default template data.
+            if ('' == templateData) {
+                var d = new Date();
+                var templateData = {
+                    <?php foreach ($this->_columns as $columnName => $column): ?>
+                        <?php echo $columnName ?>: '',
+                    <?php endforeach; ?>
+                    _id : '_' + d.getTime() + '_' + d.getMilliseconds()
+                };
+            }
+
+            // Insert after headings row.
+            if ('' == insertAfterId) {
+                Element.insert($('headings<?php echo $htmlId ?>'), {after: this.template.evaluate(templateData)});
+            }
+            // Insert after specified row.
+            else {
+                Element.insert($(insertAfterId), {after: this.template.evaluate(templateData)});
+            }
+
+            this.rowsCount += 1;
+        }
+    };
+
+    // Add existing rows.
+    <?php
+    $addAfterId = "headings{$htmlId}";
+    foreach ($this->getArrayRows() as $rowId => $row) {
+        echo "arrayRow{$htmlId}.add(" . $row->toJson() . ", '{$addAfterId}');\n";
+        $addAfterId = $rowId . $htmlId;
+    }
+    ?>
+
+    // Toggle the grid, if element is disabled (depending on scope).
+    <?php if ($this->getElement()->getDisabled()): ?>
+    document.observe("dom:loaded", function() {
+        toggleValueElements({checked: true}, $('<?php echo $this->getElement()->getId() ?>').parentNode);
+    });
+    <?php endif; ?>
+</script>

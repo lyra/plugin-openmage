@@ -1,0 +1,110 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+$model = Mage::getModel('payzen/payment_standard');
+$session = Mage::getSingleton('customer/session');
+
+$paymentByTokenActive = $model->getConfigData('one_click_active'); // Payment by token active?
+$customer = $session->getCustomer(); // Logged-in customer.
+$isPaymentByToken = $paymentByTokenActive && $customer && $customer->getPayzenIdentifier();
+?>
+
+<?php if ($isPaymentByToken) : ?>
+    <script type="text/javascript">
+        var payzenUpdatePaymentBlock = function(blockName) {
+            $$('ul#payment_form_payzen_standard li').invoke('hide');
+            $$('ul#payment_form_payzen_standard li input').invoke('disable');
+            $$('ul#payment_form_payzen_standard li select').invoke('disable');
+
+            $$('li.payzen-standard-' + blockName + '-block').invoke('show');
+            $$('li.payzen-standard-' + blockName + '-block input').invoke('enable');
+            $$('li.payzen-standard-' + blockName + '-block select').invoke('enable');
+        };
+
+        var onMethodPayzenStandardClick = function(event) {
+            payzenUpdatePaymentBlock.delay(0.2, 'id');
+        };
+    </script>
+<?php endif;?>
+
+<?php  if ($model->isOneclickAvailable()) : ?>
+    <script type="text/javascript">
+        var payzenUpdateShippingBlock = function(event) {
+            var form, params = {};
+
+            var target = event.element();
+            if (target) {
+                form = $(target).up('form');
+            }
+
+            if (!form) {
+                form = $('product_addtocart_form');
+            }
+
+            var validator  = new Validation(form, {stopOnFirst: true});
+
+            if (! form || ! validator.validate()) {
+                // Invalid form data.
+                return;
+            }
+
+            form.getElements().each(function(elt) {
+                if (elt.name) {
+                    params[elt.name] = elt.value;
+                }
+            });
+
+            new Ajax.Request("<?php echo $this->getUrl('payzen/payment/oneclickShipping', array('_secure' => true)) ?>", {
+                method: 'post',
+                parameters: params,
+                onLoading: function(){
+                    $$('#' + form.id + ' .payzen-please-wait').invoke('show');
+                    $$('#' + form.id + ' .payzen-shipping-method').invoke('hide');
+                },
+                onSuccess: function(transport) {
+                    $$('#' + form.id + ' .payzen-please-wait').invoke('hide');
+                    $$('#' + form.id + ' .payzen-shipping-method').invoke('show');
+
+                    var response = transport.responseText.evalJSON();
+                    if (response.error) {
+                        alert(response.message);
+                    }
+
+                    if (response.html) {
+                        $$('#' + form.id + ' .shipping_method').first().update(response.html);
+                    }
+                }
+            });
+        };
+
+        var payzenProductOneclickPayment = function(button) {
+            var form = $('product_addtocart_form');
+            var validator  = new Validation(form);
+
+            if (! form || ! validator.validate()) {
+                // Invalid form data.
+                return;
+            }
+
+            var elts = $$('#' + form.id + ' .payzen-method-select');
+            if (! elts || ! elts.length || ! elts.first().value) {
+                return;
+            }
+
+            if (button) {
+                button.disabled = true;
+            }
+
+            // Override form action with 1-Click payment URL.
+            form.action = "<?php echo $this->getUrl('payzen/payment/oneclickPayment', array('_secure' => true)) ?>";
+            form.submit();
+        };
+    </script>
+<?php endif;?>

@@ -1,0 +1,121 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+$paymentByTokenActive = $this->getConfigData('one_click_active'); // Payment by token active?
+$customer = Mage::getSingleton('customer/session')->getCustomer(); // Logged-in customer.
+$isPaymentByToken = $paymentByTokenActive && $customer && $customer->getPayzenIdentifier();
+if ($isPaymentByToken) {
+    Mage::helper('payzen/rest')->setSessionValidPaymentByToken($customer);
+    $isPaymentByToken &= Mage::getSingleton('checkout/session')->getValidAlias();
+}
+
+?>
+
+<ul class="form-list" id="payment_form_<?php echo $this->getMethodCode(); ?>" style="display: none; margin-left: 15px;">
+<?php
+if ($this->isLocalCcType()) :
+    $cards = $this->getAvailableCcTypes();
+
+    // Show card logos as radio buttons.
+    $amexCards = '';
+    $cbCards = '';
+    $otherCards = '';
+
+    $count = count($cards);
+
+    $first = true;
+    foreach ($cards as $code => $label) {
+        $html = '<div class="payzen-card">';
+
+        if ($count === 1) {
+            $html .= '<input type="hidden" id="payzen_standard_cc_type_' . $code . '" value="' . $code . '" name="payment[payzen_standard_cc_type]" disabled="disabled">' ;
+        } else {
+            $html .= '<input type="radio" class="radio" id="payzen_standard_cc_type_' . $code . '"' . ($first ? ' checked="checked"' : '') . ' value="' . $code . '" name="payment[payzen_standard_cc_type]" disabled="disabled">' ;
+        }
+
+        $first = false;
+
+        $html .= '<label for="payzen_standard_cc_type_' . $code . '">';
+        $html .= '<img alt="' . $label . '" src="' . $this->getCcTypeImageSrc($code) . '" title="' . $label . '" />';
+        $html .= '</label></div>';
+
+        $network = $this->getCcTypeNetwork($code);
+        if ($network === 'AMEX') {
+            $amexCards .= $html;
+        } elseif ($network === 'CB') {
+            $cbCards .= $html;
+        } else {
+            $otherCards .= $html;
+        }
+    }
+
+    if ($cbCards != '') echo '<li class="payzen-standard-cc-block">' . $cbCards . '</li>';
+    if ($amexCards != '') echo '<li class="payzen-standard-cc-block">' . $amexCards . '</li>';
+    if ($otherCards != '') echo '<li class="payzen-standard-cc-block">' . $otherCards . '</li>';
+endif;
+
+if ($isPaymentByToken) :
+$maskedPan = $customer->getPayzenMaskedCard();
+$pos = strpos($maskedPan, '|');
+
+if ($pos !== false) {
+    $brand = substr($maskedPan, 0, $pos);
+    $cardNumber = substr($maskedPan, $pos + 1);
+} else {
+    $brand = '';
+    $cardNumber = $maskedPan;
+}
+?>
+    <li class="payzen-standard-cc-block"><?php echo Mage::helper('payzen')->__('You will enter payment data after order confirmation.') ?></li>
+
+    <li class="payzen-standard-cc-block">
+        <span class="or"><?php echo Mage::helper('payzen')->__('OR') ?></span>
+    </li>
+
+    <li class="payzen-standard-cc-block">
+        <a class="payzen-payment-link" href="javascript: void(0);" onclick="payzenUpdatePaymentBlock('id');"><?php echo Mage::helper('payzen')->__('Click here to pay with your registered means of payment.') ?></a>
+    </li>
+
+    <!-- Payment with registered card block. -->
+    <li class="payzen-standard-id-block">
+        <input type="hidden" value="1" name="payment[payzen_standard_use_identifier]" disabled="disabled">
+        <?php
+            if ($brand) {
+                $img = $this->getCcTypeImageSrc($brand);
+                $brand = '<img alt="' . $this->escapeHtml($brand) . '" style="max-height: 25px; max-width: 30px; vertical-align: middle; display:inline!important"
+                          src="' . $this->escapeHtml($img) . '" title=" ' . $this->escapeHtml($brand).'">';
+            }
+
+            $maquesdCard = $brand ? $brand . ' ' . $cardNumber : $cardNumber;
+        ?>
+        <span>
+          <?php echo Mage::helper('payzen')->__('You will pay with your stored means of payment %s', '<b>' . $maquesdCard . '</b>') ?>
+          <a class="payzen-payment-link" href="<?php echo $this->escapeUrl($this->getUrl('payzen/customer/index')); ?>">(<?php echo Mage::helper('payzen')->__('manage your payment means');?>).</a>
+        </span>
+    </li>
+
+    <li class="payzen-standard-id-block">
+        <span class="or"><?php echo Mage::helper('payzen')->__('OR') ?></span>
+    </li>
+
+    <li class="payzen-standard-id-block">
+        <a class="payzen-payment-link" href="javascript: void(0);" onclick="payzenUpdatePaymentBlock('cc');"><?php echo Mage::helper('payzen')->__('Click here to pay with another means of payment.') ?></a>
+    </li>
+<?php endif;?>
+</ul>
+
+<script type="text/javascript">
+<?php if ($isPaymentByToken) : ?>
+    // Display payment by identifier block when standard payment is selected.
+    Event.stopObserving('p_method_payzen_standard', 'click', onMethodPayzenStandardClick);
+    Event.observe('p_method_payzen_standard', 'click', onMethodPayzenStandardClick);
+
+    payzenUpdatePaymentBlock.delay(0.2, 'id');
+<?php endif;?>
+</script>

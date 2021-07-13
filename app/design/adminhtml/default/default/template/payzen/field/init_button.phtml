@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+$confirmMsg = Mage::helper('payzen')->__('Are you sure you want to reset all PayZen configuration?');
+?>
+
+<table>
+    <tr>
+        <td>
+            <button class="scalable"
+                    type="button"
+                    onclick="if (confirm('<?php echo $confirmMsg; ?>')) { window.location='<?php echo $this->getButtonUrl(); ?>'; return false; }"
+                    id="<?php echo $this->getHtmlId(); ?>_button">
+                <span><span><?php echo $this->escapeHtml($this->getButtonLabel()); ?></span></span>
+            </button>
+        </td>
+    </tr>
+</table>

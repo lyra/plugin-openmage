@@ -1,0 +1,143 @@
+/**
+ * Copyright © Lyra Network.
+ * This file is part of PayZen plugin for OpenMage. See COPYING.md for license details.
+ *
+ * @author    Lyra Network (https://www.lyra.com/)
+ * @copyright Lyra Network
+ * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+label[for=p_method_payzen_standard], label[for=p_method_payzen_multi],
+label[for=p_method_payzen_gift], label[for=p_method_payzen_oney3x4x],
+label[for=p_method_payzen_sepa], label[for=p_method_payzen_fullcb],
+label[for=p_method_payzen_other], .payzen-other-means {
+    width: 90% !important; 
+    min-height: 30px !important;
+    padding-top: 6px !important;
+    background-color: #f4f4f4 !important;
+    display: inline-block !important;
+}
+
+#payment_form_payzen_multi li {
+    display: inline-block;
+    width: 45%;
+    vertical-align: top;
+}
+
+.payzen-label {
+    margin-bottom: 15px;
+}
+
+.payzen-method-img {
+    height: 30px;
+    float: right !important;
+}
+
+.payzen-card, .payzen-option {
+    display: inline-block;
+}
+
+.payzen-card {
+    margin: 10px;
+}
+
+.payzen-option {
+    padding-bottom: 5px;
+}
+
+.payzen-card label, .payzen-option label {
+    float: none !important;
+    max-width: none !important;
+    padding-right: 5px !important;
+    padding-left: 2px !important;
+    vertical-align: middle !important;
+}
+
+.payzen-option label {
+	margin: 0 0 6px 6px;
+}
+
+.payzen-card label img {
+    max-height: 30px;
+    max-width: 90px;
+    vertical-align: middle;
+}
+
+.payzen-card label span {
+    height: 30px;
+    vertical-align: middle;
+    display: block;
+}
+
+a.payzen-payment-link {
+    color: #39C;
+    text-decoration: none;
+    font-family: Georgia,Times,"Times New Roman",serif;
+    font-style: italic;
+    font-size: 12px;
+}
+
+#payzen_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    background: #000 none repeat scroll 0 0;
+    opacity: 0.65; /* Safari, Opera */
+    filter: alpha(opacity=65); /* IE */
+    -moz-opacity: 0.65; /* FireFox */
+}
+
+#payzen_iframe_warn, #payzen_iframe_actions {
+    position: relative;
+    width: 100%;
+    background: #ffffff none repeat scroll 0 0;
+    z-index: 100;
+    display: table;
+}
+
+#payzen_iframe_warn {
+    text-align: center;
+    color: #7f7f7f;
+}
+
+#payzen_iframe_actions a {
+    font-size: 12px;
+    text-decoration: none;
+    border: 0;
+    margin-left: 15px;
+}
+
+#payzen_iframe {
+    position: relative;
+    width: 100%;
+    min-height: 530px;
+    border: 0 none;
+    background: #ffffff none repeat scroll 0 0;
+    z-index: 100;
+    margin-bottom: -5px !important;
+}
+
+.payzen_review .small {
+    font-size: 10px;
+}
+
+.payzen_review {
+    margin-left: 20px;
+    border: 1px solid black;
+    font-size: 13px !important;
+}
+
+.payzen_review thead tr {
+    border-bottom: 1px solid black;
+}
+
+.payzen_review td, .payzen_review th {
+    padding: 3px 10px;
+}
+
+#payment-tool-tip {
+    position: absolute;
+}
