@@ -8,6 +8,10 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+use Lyranetwork\Payzen\Model\Api\Rest\Api as PayzenRest;
+use Lyranetwork\Payzen\Model\Api\Form\Response as PayzenResponse;
+
 class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
 {
     const IDENTIFIER = 'payzen_identifier'; // Key to save if payment is by identifier.
@@ -108,7 +112,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         $storeId = $order->getStore()->getId();
 
         // Load API response.
-        $response = new Lyranetwork_Payzen_Model_Api_Response(
+        $response = new PayzenResponse(
             $request,
             $this->_getHelper()->getCommonConfigData('ctx_mode', $storeId),
             $this->_getHelper()->getCommonConfigData('key_test', $storeId),
@@ -227,7 +231,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         Mage::app()->init($storeId, 'store');
 
         // Load API response.
-        $response = new Lyranetwork_Payzen_Model_Api_Response(
+        $response = new PayzenResponse(
             $post,
             $this->_getHelper()->getCommonConfigData('ctx_mode', $storeId),
             $this->_getHelper()->getCommonConfigData('key_test', $storeId),
@@ -311,13 +315,13 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
                     $transactionId = $response->get('trans_id') . '-' . $response->get('sequence_number');
 
                     // Save paid amount.
-                    $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response->get('currency'));
+                    $currency = PayzenApi::findCurrencyByNumCode($response->get('currency'));
                     $amount = number_format($currency->convertAmountToFloat($response->get('amount')), $currency->getDecimals(), ',', ' ');
 
                     $amountDetail = $amount . ' ' . $currency->getAlpha3();
 
                     if ($response->get('effective_currency') && ($response->get('currency') !== $response->get('effective_currency'))) {
-                        $effectiveCurrency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response->get('effective_currency'));
+                        $effectiveCurrency = PayzenApi::findCurrencyByNumCode($response->get('effective_currency'));
 
                         $effectiveAmount = number_format(
                             $effectiveCurrency->convertAmountToFloat($response->get('effective_amount')),
@@ -390,8 +394,8 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         // Wrap payment result to use traditional order creation tunnel.
         $data = $this->_getRestHelper()->convertRestResult($answer);
 
-        /** @var Lyranetwork_Payzen_Model_Api_Response $response */
-        $response = new Lyranetwork_Payzen_Model_Api_Response($data, null, null, null);
+        /** @var PayzenResponse $response */
+        $response = new PayzenResponse($data, null, null, null);
 
         $quoteId = (int) $response->getExtInfo('quote_id'); // Quote ID is sent to platform as ext_info.
         $quote = Mage::getModel('sales/quote');
@@ -530,7 +534,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
 
         // Wrap payment result to use traditional order creation tunnel.
         $data = $this->_getRestHelper()->convertRestResult($answer);
-        $response = new Lyranetwork_Payzen_Model_Api_Response($data, null, null, null);
+        $response = new PayzenResponse($data, null, null, null);
 
         $quoteId = (int) $response->getExtInfo('quote_id'); // Quote ID is sent to platform as ext_info.
         $quote = Mage::getModel('sales/quote');
@@ -678,7 +682,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
                 );
 
                 // Perform REST request to cancel identifier.
-                $client = new Lyranetwork_Payzen_Model_Api_Rest(
+                $client = new PayzenRest(
                     $this->_getHelper()->getCommonConfigData('rest_url'),
                     $this->_getHelper()->getCommonConfigData('site_id'),
                     $this->_getRestHelper()->getPassword()
@@ -729,7 +733,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         $this->_getHelper()->log("Identifier for customer {$customer->getEmail()} successfully deleted.");
     }
 
-    private function _isPaymentSuccessfullyProcessed(Lyranetwork_Payzen_Model_Api_Response $response)
+    private function _isPaymentSuccessfullyProcessed(PayzenResponse $response)
     {
         if ($response->isAcceptedPayment()) {
             return true;
@@ -742,9 +746,9 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
      * Update order status and eventually create invoice.
      *
      * @param Mage_Sales_Model_Order $order
-     * @param Lyranetwork_Payzen_Model_Api_Response $response
+     * @param PayzenResponse $response
      */
-    protected function _registerOrder(Mage_Sales_Model_Order $order, Lyranetwork_Payzen_Model_Api_Response $response)
+    protected function _registerOrder(Mage_Sales_Model_Order $order, PayzenResponse $response)
     {
         $this->_getHelper()->log("Saving payment for order #{$order->getIncrementId()}.");
 
@@ -798,7 +802,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
      * Update order payment information.
      *
      * @param Mage_Sales_Model_Order $order
-     * @param Lyranetwork_Payzen_Model_Api_Response $response
+     * @param PayzenResponse $response
      */
     public function updatePaymentInfo(Mage_Sales_Model_Order $order, $response)
     {
@@ -853,7 +857,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         // Set is_fraud_detected flag.
         $order->getPayment()->setIsFraudDetected($response->isSuspectedFraud());
 
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response->get('currency'));
+        $currency = PayzenApi::findCurrencyByNumCode($response->get('currency'));
 
         if ($response->get('card_brand') === 'MULTI') { // Multi brand.
             $data = Mage::helper('core')->jsonDecode($response->get('payment_seq'), Zend_Json::TYPE_OBJECT);
@@ -961,7 +965,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
                         && ($response->get('currency') !== $response->get('effective_currency'))
                     ) {
                         // Effective amount.
-                        $effectiveCurrency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response->get('effective_currency'));
+                        $effectiveCurrency = PayzenApi::findCurrencyByNumCode($response->get('effective_currency'));
 
                         $effectiveAmount= number_format(
                             $effectiveCurrency->convertAmountToFloat((int) ($amount / $rate)),
@@ -1002,7 +1006,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
 
                 if ($response->get('effective_currency') && ($response->get('currency') !== $response->get('effective_currency'))) {
                     // Effective amount.
-                    $effectiveCurrency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response->get('effective_currency'));
+                    $effectiveCurrency = PayzenApi::findCurrencyByNumCode($response->get('effective_currency'));
 
                     $effectiveAmount = number_format(
                         $effectiveCurrency->convertAmountToFloat($response->get('effective_amount')),
@@ -1059,7 +1063,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         }
     }
 
-    private function _saveIdentifier(Mage_Sales_Model_Order $order, Lyranetwork_Payzen_Model_Api_Response $response)
+    private function _saveIdentifier(Mage_Sales_Model_Order $order, PayzenResponse $response)
     {
         if (! $order->getCustomerId()) {
             return;
@@ -1109,7 +1113,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         }
     }
 
-    private function _saveSepaIdentifier(Mage_Sales_Model_Order $order, Lyranetwork_Payzen_Model_Api_Response $response)
+    private function _saveSepaIdentifier(Mage_Sales_Model_Order $order, PayzenResponse $response)
     {
         if (! $order->getCustomerId()) {
             return;
@@ -1196,9 +1200,9 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
      * Cancel order.
      *
      * @param Mage_Sales_Model_Order         $order
-     * @param Lyranetwork_Payzen_Model_Api_Response $response
+     * @param PayzenResponse $response
      */
-    protected function _cancelOrder(Mage_Sales_Model_Order $order, Lyranetwork_Payzen_Model_Api_Response $response)
+    protected function _cancelOrder(Mage_Sales_Model_Order $order, PayzenResponse $response)
     {
         $this->_getHelper()->log("Canceling order #{$order->getIncrementId()}.");
 
@@ -1296,7 +1300,7 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
     /**
      * Get new order state and status according to the gateway response.
      *
-     * @param  Lyranetwork_Payzen_Model_Api_Response $response
+     * @param  PayzenResponse $response
      * @param  Mage_Sales_Model_Order $order
      * @param  boolean $ignoreFraud
      * @return Varien_Object
@@ -1369,8 +1373,8 @@ class Lyranetwork_Payzen_Helper_Payment extends Mage_Core_Helper_Abstract
         $type = false;
 
         $successStatuses = array_merge(
-            Lyranetwork_Payzen_Model_Api_Api::getSuccessStatuses(),
-            Lyranetwork_Payzen_Model_Api_Api::getPendingStatuses()
+            PayzenApi::getSuccessStatuses(),
+            PayzenApi::getPendingStatuses()
         );
 
         switch (true) {

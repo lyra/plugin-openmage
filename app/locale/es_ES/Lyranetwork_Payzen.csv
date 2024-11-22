@@ -16,6 +16,7 @@
 "Reset","Restablecer"
 "Logs","Registros"
 "Enable / disable module logs.","Habilitar/deshabilitar registros del módulo."
+"Click to view the module configuration documentation","Haga clic para ver la documentación de la configuración del módulo"
 "PAYMENT GATEWAY ACCESS","ACCESO AL PORTAL DE PAGO"
 "Store identifier","Identificador de tienda"
 "The identifier provided by PayZen.","El identificador proporcionado por PayZen."
@@ -283,8 +284,6 @@
 "This field must agree to the regular expression %s.","Este campo debe aceptar la expresión regular %s."
 "Payment in 3 or 4 times Oney cannot be used.","No se puede usar el pago 3 o 4 veces Oney."
 "Gift card logos cannot be uploaded. See module logs for more details.","No se pueden cargar los logotipos de la tarjeta regalo. Consulte los registros del módulo para más detalles."
-"Warning, please increase the suhosin patch for PHP post and request limits to save module configurations correctly. Recommended value is %s.","Advertencia: aumente el parche suhosin para PHP post y solicite límites para guardar la configuración del módulo correctamente. El valor recomendado es %s."
-"Warning, please increase the value of the max_input_vars directive in php.ini to save module configurations correctly. Recommended value is %s.","Advertencia: aumente el valor de la directriz max_input_vars en php.ini para guardar la configuración del módulo correctamente. El valor recomendado es %s."
 "Use 127 alphanumeric characters, accentuated characters and these special characters: space, slash, hyphen, apostrophe.","Use 127 caracteres alfanuméricos, caracteres acentuados y estos caracteres especiales: espacio, barra diagonal, guión, apóstrofe."
 
 "Payment Method","Método de pago"

@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Response as PayzenResponse;
+
 class Lyranetwork_Payzen_Block_Info extends Mage_Payment_Block_Info
 {
     protected function _construct()
@@ -80,7 +82,7 @@ class Lyranetwork_Payzen_Block_Info extends Mage_Payment_Block_Info
             }
 
             if ($key === 'result' && $allResults[$key] === '30') { // Append form error if any.
-                $label .= ' ' . Lyranetwork_Payzen_Model_Api_Response::extraMessage($allResults['extra_result']);
+                $label .= ' ' . PayzenResponse::extraMessage($allResults['extra_result']);
             }
 
             $labels[] = $label;
@@ -92,6 +94,6 @@ class Lyranetwork_Payzen_Block_Info extends Mage_Payment_Block_Info
     public function translate($code, $type, $appendCode = false)
     {
         $lang = strtolower(substr(Mage::app()->getLocale()->getLocaleCode(), 0, 2));
-        return Lyranetwork_Payzen_Model_Api_Response::translate($code, $type, $lang, $appendCode);
+        return PayzenResponse::translate($code, $type, $lang, $appendCode);
     }
 }

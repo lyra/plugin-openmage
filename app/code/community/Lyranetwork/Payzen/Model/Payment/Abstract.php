@@ -8,6 +8,13 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+use Lyranetwork\Payzen\Model\Api\Rest\Api as PayzenRest;
+use Lyranetwork\Payzen\Model\Api\Form\Response as PayzenResponse;
+use Lyranetwork\Payzen\Model\Api\Form\Request as PayzenRequest;
+use Lyranetwork\Payzen\Model\Api\Refund\OrderInfo as PayzenOrderInfo;
+use Lyranetwork\Payzen\Model\Api\Refund\Api as PayzenRefund;
+
 abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Model_Method_Abstract
 {
     protected $_infoBlockType = 'payzen/info';
@@ -36,7 +43,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
     {
         parent::__construct();
 
-        $this->_payzenRequest = new Lyranetwork_Payzen_Model_Api_Request();
+        $this->_payzenRequest = new PayzenRequest();
     }
 
     /**
@@ -53,10 +60,10 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
         $amount = $order->getGrandTotal();
 
         // Set currency.
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($order->getOrderCurrencyCode());
+        $currency = PayzenApi::findCurrencyByAlphaCode($order->getOrderCurrencyCode());
         if ($currency == null) {
             // If currency is not supported, use base currency.
-            $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($order->getBaseCurrencyCode());
+            $currency = PayzenApi::findCurrencyByAlphaCode($order->getBaseCurrencyCode());
 
             // ... and order total in base currency
             $amount = $order->getBaseGrandTotal();
@@ -70,7 +77,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
         $contrib = $this->_getHelper()->getCommonConfigData('cms_identifier') . '_' .
             $this->_getHelper()->getCommonConfigData('plugin_version') . '/';
 
-            $this->_payzenRequest->set('contrib', $contrib . Mage::getOpenMageVersion() . '/' . Lyranetwork_Payzen_Model_Api_Api::shortPhpVersion());
+            $this->_payzenRequest->set('contrib', $contrib . Mage::getOpenMageVersion() . '/' . PayzenApi::shortPhpVersion());
 
         // Set config parameters.
         $configFields = array('site_id', 'key_test', 'key_prod', 'ctx_mode', 'capture_delay', 'validation_mode',
@@ -102,7 +109,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
 
         // Set the language code.
         $lang = strtolower(substr(Mage::app()->getLocale()->getLocaleCode(), 0, 2));
-        if (! Lyranetwork_Payzen_Model_Api_Api::isSupportedLanguage($lang)) {
+        if (! PayzenApi::isSupportedLanguage($lang)) {
             $lang = $this->_getHelper()->getCommonConfigData('language');
         }
 
@@ -283,7 +290,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
                 $requestData = array('uuid' => $uuid);
 
                 // Perform our request.
-                $client = new Lyranetwork_Payzen_Model_Api_Rest(
+                $client = new PayzenRest(
                     $this->_getHelper()->getCommonConfigData('rest_url', $storeId),
                     $this->_getHelper()->getCommonConfigData('site_id', $storeId),
                     $this->_getRestHelper()->getPassword($storeId)
@@ -293,8 +300,8 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
             }
 
             $successStatuses = array_merge(
-                Lyranetwork_Payzen_Model_Api_Api::getSuccessStatuses(),
-                Lyranetwork_Payzen_Model_Api_Api::getPendingStatuses()
+                PayzenApi::getSuccessStatuses(),
+                PayzenApi::getPendingStatuses()
             );
 
             $this->_getRestHelper()->checkResult($getPaymentDetails, $successStatuses);
@@ -315,7 +322,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
             $data = $this->_getRestHelper()->convertRestResult($getPaymentDetails['answer'], true);
 
             // Load API response.
-            $response = new Lyranetwork_Payzen_Model_Api_Response($data, null, null, null);
+            $response = new PayzenResponse($data, null, null, null);
 
             $stateObject = $this->_getPaymentHelper()->nextOrderState($response, $order, true);
 
@@ -396,7 +403,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
             );
 
             // Load API response.
-            $client = new Lyranetwork_Payzen_Model_Api_Rest(
+            $client = new PayzenRest(
                 $this->_getHelper()->getCommonConfigData('rest_url', $storeId),
                 $this->_getHelper()->getCommonConfigData('site_id', $storeId),
                 $this->_getRestHelper()->getPassword($storeId)
@@ -499,7 +506,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
                 );
 
                 // Perform our request.
-                $client = new Lyranetwork_Payzen_Model_Api_Rest(
+                $client = new PayzenRest(
                     $this->_getHelper()->getCommonConfigData('rest_url', $storeId),
                     $this->_getHelper()->getCommonConfigData('site_id', $storeId),
                     $this->_getRestHelper()->getPassword($storeId)
@@ -513,7 +520,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
                 $data = $this->_getRestHelper()->convertRestResult($validatePaymentResponse['answer'], true);
 
                 // Load API response.
-                $response = new Lyranetwork_Payzen_Model_Api_Response($data, null, null, null);
+                $response = new PayzenResponse($data, null, null, null);
 
                 $transId = $order->getPayment()->getCcTransId() . '-' . $response->get('sequence_number');
 
@@ -599,7 +606,7 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
         }
 
         // Load API response.
-        $response = new Lyranetwork_Payzen_Model_Api_Response($data, null, null, null);
+        $response = new PayzenResponse($data, null, null, null);
 
         $stateObject = $this->_getPaymentHelper()->nextOrderState($response, $order, true);
 
@@ -684,14 +691,14 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
                 return in_array($this->currentCurrencyCode, $this->_currencies);
             }
 
-            $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($this->currentCurrencyCode);
+            $currency = PayzenApi::findCurrencyByAlphaCode($this->currentCurrencyCode);
             if ($currency) {
                 return true;
             }
         }
 
         // Check base currency support.
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($baseCurrencyCode);
+        $currency = PayzenApi::findCurrencyByAlphaCode($baseCurrencyCode);
         if ($currency) {
             return true;
         }
@@ -781,166 +788,54 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
         $storeId = $order->getStore()->getId();
 
         $successStatuses = array_merge(
-            Lyranetwork_Payzen_Model_Api_Api::getSuccessStatuses(),
-            Lyranetwork_Payzen_Model_Api_Api::getPendingStatuses()
+            PayzenApi::getSuccessStatuses(),
+            PayzenApi::getPendingStatuses()
         );
 
         $this->_getHelper()->log("Start refund of {$amount} {$order->getOrderCurrencyCode()} for order #{$order->getIncrementId()} with {$this->_code} payment method.");
 
         try {
-            // Get currency.
-            $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($order->getOrderCurrencyCode());
-            $amountInCents = $currency->convertAmountToInteger($amount);
-
-            // Retrieve transaction UUID.
-            $uuid = $payment->getAdditionalInformation(Lyranetwork_Payzen_Helper_Payment::TRANS_UUID);
-            if (! $uuid) { // Retro compatibility.
-                // Get UUID from Order.
-                $uuidArray = $this->_getPaymentDetails($order);
-                $uuid = reset($uuidArray);
-            }
-
-            $requestData = array('uuid' => $uuid);
-
-            // Perform our request.
-            $client = new Lyranetwork_Payzen_Model_Api_Rest(
-                $this->_getHelper()->getCommonConfigData('rest_url', $storeId),
-                $this->_getHelper()->getCommonConfigData('site_id', $storeId),
-                $this->_getRestHelper()->getPassword($storeId)
-            );
-
-            $getPaymentDetails = $client->post('V4/Transaction/Get', json_encode($requestData));
-            $this->_getRestHelper()->checkResult($getPaymentDetails);
-
-            $transStatus = $getPaymentDetails['answer']['detailedStatus'];
-
-            if (! in_array($transStatus, $successStatuses)) {
-                $msg = $this->_getHelper()->__('Error occurred when refunding payment for order #%s. Unexpected transaction status: %s.', $order->getIncrementId(), $transStatus);
-                Mage::throwException($msg);
-            }
-
             $commentText = $this->_getUserInfo();
 
             foreach ($payment->getCreditmemo()->getCommentsCollection() as $comment) {
                 $commentText .= '; ' . $comment->getComment();
             }
 
-            if ($transStatus === 'CAPTURED') { // Transaction captured.
-                $requestData = array(
-                    'uuid' => $uuid,
-                    'amount' => $amountInCents,
-                    'resolutionMode' => 'REFUND_ONLY',
-                    'currency' => $currency->getAlpha3(),
-                    'comment' => $commentText
-                );
-
-                $refundPaymentResponse = $client->post('V4/Transaction/CancelOrRefund', json_encode($requestData));
-
-                $this->_getRestHelper()->checkResult(
-                    $refundPaymentResponse,
-                    array(
-                        'INITIAL',
-                        'AUTHORISED',
-                        'AUTHORISED_TO_VALIDATE',
-                        'WAITING_AUTHORISATION',
-                        'WAITING_AUTHORISATION_TO_VALIDATE',
-                        'CAPTURED',
-                        'UNDER_VERIFICATION'
-                    )
-                );
-
-                // Check operation type.
-                $transType = $refundPaymentResponse['answer']['operationType'];
-
-                if ($transType !== 'CREDIT') {
-                    $msg = $this->_getHelper()->__("Unexpected transaction type received (%s).", $transType);
-                    throw new UnexpectedValueException($msg);
-                }
-
-                // Create refund transaction in OpenMage.
-                $this->_createRefundTransaction($payment, $refundPaymentResponse['answer']);
-
-                $this->_getHelper()->log("Online money refund for order #{$order->getIncrementId()} is successful.");
-            } else {
-                $transAmount = $getPaymentDetails['answer']['amount'];
-                if ($getPaymentDetails['answer']['transactionDetails']['effectiveCurrency'] && ($getPaymentDetails['answer']['transactionDetails']['effectiveCurrency'] !== $getPaymentDetails['answer']['currency'])) {
-                    $transAmount = $getPaymentDetails['answer']['transactionDetails']['effectiveAmount']; // Use effective amount to get modified amount.
-                }
-
-                if ($amountInCents > $transAmount) {
-                    $transAmountFloat = $currency->convertAmountToFloat($transAmount);
-                    $msg = $this->_getHelper()->__("Cannot refund payment for order #%s. Transaction amount (%s %s) is less than requested refund amount (%s %s).", $order->getIncrementId(), $transAmountFloat, $currency->getAlpha3(), $amount, $currency->getAlpha3());
-                    Mage::throwException($msg);
-                }
-
-                if ($amountInCents == $transAmount) { // Transaction cancel.
-                    $requestData = array(
-                        'uuid' => $uuid,
-                        'resolutionMode' => 'CANCELLATION_ONLY',
-                        'comment' => $commentText
-                    );
-
-                    $cancelPaymentResponse = $client->post('V4/Transaction/CancelOrRefund', json_encode($requestData));
-
-                    $this->_getRestHelper()->checkResult($cancelPaymentResponse, array('CANCELLED'));
-
-                    $order->cancel();
-                    $this->_getHelper()->log("Online payment cancel for order #{$order->getIncrementId()} is successful.");
-                } else {
-                    // Partial transaction cancel, call update WS.
-                    $newTransactionAmount = $transAmount - $amountInCents;
-                    $requestData = array(
-                        'uuid' => $uuid,
-                        'cardUpdate' => array(
-                            'amount' => $newTransactionAmount,
-                            'currency' => $currency->getAlpha3()
-                        ),
-                        'comment' => $commentText
-                    );
-
-                    $updatePaymentResponse = $client->post('V4/Transaction/Update', json_encode($requestData));
-
-                    $successStatuses = array_merge(
-                        Lyranetwork_Payzen_Model_Api_Api::getSuccessStatuses(),
-                        Lyranetwork_Payzen_Model_Api_Api::getPendingStatuses()
-                    );
-
-                    $this->_getRestHelper()->checkResult($updatePaymentResponse, $successStatuses);
-
-                    $this->_getHelper()->log("Online payment update for order #{$order->getIncrementId()} is successful.");
-                }
+            $online_transactions_currency = $this->_getHelper()->getCommonConfigData('online_transactions_currency', $storeId);
+            $amountInCurrencyCode = $payment->getCreditmemo()->getGrandTotal();
+            $currencyCode = $order->getOrderCurrencyCode();
+            $currency = PayzenApi::findCurrencyByAlphaCode($currencyCode);
+            if (($online_transactions_currency == '2') || (! $currency)) {
+                $currencyCode = $order->getBaseCurrencyCode();
+                $amountInCurrencyCode = $payment->getCreditmemo()->getBaseGrandTotal();
             }
-        } catch (UnexpectedValueException $e) {
-            $this->_getHelper()->log("Refund payment error: {$e->getMessage()}.", Zend_Log::ERR);
-            Mage::throwException($e->getMessage());
-        } catch (Exception $e) {
-            $this->_getHelper()->log(
-                "Refund payment xception with code {$e->getCode()}: {$e->getMessage()}",
-                Zend_Log::ERR
+
+            $payzenOrderInfo = new PayzenOrderInfo();
+            $payzenOrderInfo->setOrderRemoteId($order->getIncrementId());
+            $payzenOrderInfo->setOrderId($order->getIncrementId());
+            $payzenOrderInfo->setOrderReference($order->getIncrementId());
+            $payzenOrderInfo->setOrderCurrencyIsoCode($currencyCode);
+            $payzenOrderInfo->setOrderCurrencySign($currencyCode);
+            $payzenOrderInfo->setOrderUserInfo($commentText);
+
+            $refundApi = new PayzenRefund(
+                $this->_getRefundHelper()->setPayment($payment),
+                $this->_getRestHelper()->getPassword($storeId),
+                $this->_getHelper()->getCommonConfigData('rest_url', $storeId),
+                $this->_getHelper()->getCommonConfigData('site_id', $storeId),
+                'OpenMage'
             );
 
-            if ($e->getCode() === 'PSP_083') {
-                Mage::throwException(__('Chargebacks cannot be refunded.'));
-            } elseif ($e->getCode() === 'PSP_100') {
-                // Merchant does not subscribe to REST WS option, refund payment offline.
-                $notice = __('You are not authorized to do this action online. Please, do not forget to update payment in PayZen Back Office.');
-                $this->_getAdminSession()->addWarning($notice);
-                // OpenMage will do an offline refund.
-            } else {
-                $message = __('Refund error') . ': ';
-
-                if ($e->getCode() <= -1) {
-                    // Manage cUrl errors.
-                    $message .= __('Please consult the PayZen logs for more details.');
-                } else {
-                    $message .= $e->getMessage();
-                }
-
-                Mage::throwException($message);
-            }
+            // Do online refund.
+            $order->setPayment($payment);
+            $refundApi->refund($payzenOrderInfo, $amountInCurrencyCode);
+        } catch (Exception $e) {
+            throw new \Exception($e->getMessage());
         }
 
         $order->save();
+        $this->_getHelper()->log("Refunded order #{$order->getIncrementId()} has been saved.");
+
         return $this;
     }
 
@@ -958,14 +853,14 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
         }
 
         // Save paid amount.
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response['vads_currency']);
+        $currency = PayzenApi::findCurrencyByNumCode($response['vads_currency']);
         $amount = number_format($currency->convertAmountToFloat($response['vads_amount']), $currency->getDecimals(), ',', ' ');
 
         $amountDetail = $amount . ' ' . $currency->getAlpha3();
 
         if ($response['vads_effective_currency'] &&
             ($response['vads_currency'] !== $response['vads_effective_currency'])) {
-            $effectiveCurrency = _Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($response['vads_effective_currency']);
+            $effectiveCurrency = _PayzenApi::findCurrencyByNumCode($response['vads_effective_currency']);
 
             $effectiveAmount = number_format(
                 $effectiveCurrency->convertAmountToFloat($response['vads_effective_amount']),
@@ -1042,12 +937,22 @@ abstract class Lyranetwork_Payzen_Model_Payment_Abstract extends Mage_Payment_Mo
         return Mage::helper('payzen/rest');
     }
 
+    /**
+     * Return payzen payment method refund helper.
+     *
+     * @return Mage_Payzen_Helper_Refund
+     */
+    protected function _getRefundHelper()
+    {
+        return Mage::helper('payzen/refund');
+    }
+
     protected function _getPaymentDetails($order, $uuidOnly = true)
     {
         $storeId = $order->getStore()->getId();
 
         // Get UUIDs from Order.
-        $client = new Lyranetwork_Payzen_Model_Api_Rest(
+        $client = new PayzenRest(
             $this->_getHelper()->getCommonConfigData('rest_url', $storeId),
             $this->_getHelper()->getCommonConfigData('site_id', $storeId),
             $this->_getRestHelper()->getPassword($storeId)

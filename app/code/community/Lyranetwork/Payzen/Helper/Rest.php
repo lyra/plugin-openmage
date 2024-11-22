@@ -8,6 +8,9 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+use Lyranetwork\Payzen\Model\Api\Rest\Api as PayzenRest;
+
 class Lyranetwork_Payzen_Helper_Rest extends Mage_Core_Helper_Abstract
 {
     public function convertRestResult($answer, $isTransaction = false)
@@ -45,8 +48,8 @@ class Lyranetwork_Payzen_Helper_Rest extends Mage_Core_Helper_Abstract
 
         $response['vads_amount'] = $this->getProperty($transaction, 'amount');
 
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrency($this->getProperty($transaction, 'currency'));
-        $response['vads_currency'] = Lyranetwork_Payzen_Model_Api_Api::getCurrencyNumCode($currency->getAlpha3());
+        $currency = PayzenApi::findCurrency($this->getProperty($transaction, 'currency'));
+        $response['vads_currency'] = PayzenApi::getCurrencyNumCode($currency->getAlpha3());
 
         if ($paymentToken = $this->getProperty($transaction, 'paymentMethodToken')) {
             $response['vads_identifier'] = $paymentToken;
@@ -67,7 +70,7 @@ class Lyranetwork_Payzen_Helper_Rest extends Mage_Core_Helper_Abstract
             $response['vads_sequence_number'] = $this->getProperty($transactionDetails, 'sequenceNumber');
 
             $effectiveAmount = $this->getProperty($transactionDetails, 'effectiveAmount');
-            $effectiveCurrency = Lyranetwork_Payzen_Model_Api_Api::getCurrencyNumCode($this->getProperty($transactionDetails, 'effectiveCurrency'));
+            $effectiveCurrency = PayzenApi::getCurrencyNumCode($this->getProperty($transactionDetails, 'effectiveCurrency'));
 
             // Workarround to adapt to REST API behavior.
             if ($effectiveAmount && $effectiveCurrency) {
@@ -207,7 +210,7 @@ class Lyranetwork_Payzen_Helper_Rest extends Mage_Core_Helper_Abstract
             );
 
             // Perform REST request to check identifier.
-            $client = new Lyranetwork_Payzen_Model_Api_Rest(
+            $client = new PayzenRest(
                 $this->_getHelper()->getCommonConfigData('rest_url'),
                 $this->_getHelper()->getCommonConfigData('site_id'),
                 $this->getPassword()

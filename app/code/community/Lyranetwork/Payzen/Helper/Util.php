@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 class Lyranetwork_Payzen_Helper_Util extends Mage_Core_Helper_Abstract
 {
     const ORDER_ID_REGEX = '#^[a-zA-Z0-9]{1,9}$#u';
@@ -231,7 +233,7 @@ class Lyranetwork_Payzen_Helper_Util extends Mage_Core_Helper_Abstract
         $notAllowed = '#[^A-Z0-9ÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÇ ]#ui';
 
         // Used currency.
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByNumCode($payzenRequest->get('currency'));
+        $currency = PayzenApi::findCurrencyByNumCode($payzenRequest->get('currency'));
 
         $subtotal = 0;
 
