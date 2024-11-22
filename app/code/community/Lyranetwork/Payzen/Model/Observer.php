@@ -355,30 +355,6 @@ class Lyranetwork_Payzen_Model_Observer
         }
     }
 
-    public function doAfterPaymentSectionEdit($observer)
-    {
-        if (Mage::app()->getRequest()->getParam('section') !== 'payment') {
-            return;
-        }
-
-        // Response content.
-        $output = Mage::app()->getLayout()->getOutput();
-
-        $preferedMaxInputVars = 0;
-        $preferedMaxInputVars += substr_count($output, 'name="groups[');
-        $preferedMaxInputVars += substr_count($output, 'name="config_state[');
-        $preferedMaxInputVars += 100; // To take account of dynamically created inputs.
-
-        $block = Mage::app()->getLayout()->getMessagesBlock();
-        if ((ini_get('suhosin.post.max_vars') && ini_get('suhosin.post.max_vars') < $preferedMaxInputVars)
-            || (ini_get('suhosin.request.max_vars') && ini_get('suhosin.request.max_vars') < $preferedMaxInputVars)
-        ) {
-            $block->addWarning($this->_getHelper()->__('Warning, please increase the suhosin patch for PHP post and request limits to save module configurations correctly. Recommended value is %s.', $preferedMaxInputVars));
-        } elseif (ini_get('max_input_vars') && ini_get('max_input_vars') < $preferedMaxInputVars) {
-            $block->addWarning($this->_getHelper()->__('Warning, please increase the value of the max_input_vars directive in php.ini to save module configurations correctly. Recommended value is %s.', $preferedMaxInputVars));
-        }
-    }
-
     public function doReplacePrototypeLibrary()
     {
         $quote = Mage::getSingleton('checkout/session')->getQuote();

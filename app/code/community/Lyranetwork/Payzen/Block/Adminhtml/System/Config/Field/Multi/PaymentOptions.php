@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 /**
  * Custom renderer for the multi payment options field.
  */
@@ -38,7 +40,7 @@ class Lyranetwork_Payzen_Block_Adminhtml_System_Config_Field_Multi_PaymentOption
             )
         );
 
-        $cards = Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes();
+        $cards = PayzenApi::getSupportedCardTypes();
         if (isset($cards['CB'])) {
             // If CB is available, we allow contract override.
             $this->addColumn(

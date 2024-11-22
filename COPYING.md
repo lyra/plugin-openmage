@@ -1,4 +1,4 @@
-Copyright © 2021 Lyra Network.
+Copyright © 2021-2024 Lyra Network.
 
 PayZen plugin for OpenMage is licensed under the
 Open Software License version 3.0 that is bundled with

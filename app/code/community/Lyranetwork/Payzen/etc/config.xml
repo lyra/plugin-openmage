@@ -14,7 +14,7 @@
     <!-- Version. -->
     <modules>
         <Lyranetwork_Payzen>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
         </Lyranetwork_Payzen>
     </modules>
 
@@ -411,16 +411,6 @@
                     </payzen_payment_buttons_manage>
                 </observers>
             </adminhtml_widget_container_html_before>
-
-            <controller_action_layout_render_before_adminhtml_system_config_edit>
-                <observers>
-                    <payzen_after_payment_section_edit>
-                        <type>singleton</type>
-                        <class>payzen/observer</class>
-                        <method>doAfterPaymentSectionEdit</method>
-                    </payzen_after_payment_section_edit>
-                </observers>
-            </controller_action_layout_render_before_adminhtml_system_config_edit>
         </events>
     </adminhtml>
 
@@ -499,7 +489,7 @@
         <payment>
             <payzen>
                 <developed_by>Lyra Network</developed_by>
-                <plugin_version>1.0.0</plugin_version>
+                <plugin_version>1.1.0</plugin_version>
                 <gateway_version>V2</gateway_version>
                 <cms_identifier>OpenMage_19-20</cms_identifier>
                 <enable_logs>1</enable_logs>
@@ -524,7 +514,7 @@
                 <redirect_success_message>Redirection to shop in a few seconds...</redirect_success_message>
                 <redirect_error_timeout>5</redirect_error_timeout>
                 <redirect_error_message>Redirection to shop in a few seconds...</redirect_error_message>
-                <return_mode>GET</return_mode>
+                <return_mode>POST</return_mode>
                 <registered_order_status>processing</registered_order_status>
                 <capture_auto>1</capture_auto>
 

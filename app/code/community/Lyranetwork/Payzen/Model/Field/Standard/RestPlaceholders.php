@@ -18,15 +18,6 @@ class Lyranetwork_Payzen_Model_Field_Standard_RestPlaceholders extends Lyranetwo
 
         if (! is_array($values) || empty($values)) {
             $this->setValue(array());
-        } else {
-            $i = 0;
-            foreach ($values as $value) {
-                $i++;
-
-                if (empty($value)) {
-                    continue;
-                }
-            }
         }
 
         return parent::_beforeSave();

@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 /**
  * Custom renderer for the contact us element.
  */
@@ -21,7 +23,7 @@ class Lyranetwork_Payzen_Block_Adminhtml_System_Config_Field_ContactUs extends M
      */
     public function render(Varien_Data_Form_Element_Abstract $element)
     {
-        $comment = Lyranetwork_Payzen_Model_Api_Api::formatSupportEmails('support@payzen.eu');
+        $comment = PayzenApi::formatSupportEmails('support@payzen.eu');
         $element->setComment($comment);
 
         return parent::render($element);

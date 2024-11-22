@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 class Lyranetwork_Payzen_Model_Field_Other_PaymentMeans extends Lyranetwork_Payzen_Model_Field_Array
 {
     protected $_eventPrefix = 'payzen_field_other_payment_means';
@@ -22,7 +24,7 @@ class Lyranetwork_Payzen_Model_Field_Other_PaymentMeans extends Lyranetwork_Payz
         } else {
             $i = 0;
             $means = array();
-            $supportedCards = Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes();
+            $supportedCards = PayzenApi::getSupportedCardTypes();
             $addedCards = Mage::getModel('payzen/payment_other')->getAddedMeans();
             $cards = array_merge($supportedCards, $addedCards);
             foreach ($values as $key => $value) {

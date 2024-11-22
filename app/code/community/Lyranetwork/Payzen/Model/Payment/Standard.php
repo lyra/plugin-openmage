@@ -8,6 +8,9 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+use Lyranetwork\Payzen\Model\Api\Rest\Api as PayzenRest;
+
 class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model_Payment_Abstract
 {
     protected $_code = 'payzen_standard';
@@ -86,17 +89,17 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
     private function _getFormTokenData($quote, $useIdentifier = false)
     {
         $amount = $quote->getGrandTotal();
-        $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($quote->getOrderCurrencyCode());
+        $currency = PayzenApi::findCurrencyByAlphaCode($quote->getOrderCurrencyCode());
         if ($currency == null) {
             // If currency is not supported, use base currency
-            $currency = Lyranetwork_Payzen_Model_Api_Api::findCurrencyByAlphaCode($quote->getBaseCurrencyCode());
+            $currency = PayzenApi::findCurrencyByAlphaCode($quote->getBaseCurrencyCode());
 
             // ... and order total in base currency.
             $amount = $quote->getBaseGrandTotal();
         }
 
         $language = strtolower(substr(Mage::app()->getLocale()->getLocaleCode(), 0, 2));
-        if (! Lyranetwork_Payzen_Model_Api_Api::isSupportedLanguage($language)) {
+        if (! PayzenApi::isSupportedLanguage($language)) {
             $language = $this->_getHelper()->getCommonConfigData('language');
         }
 
@@ -105,12 +108,6 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
             $captureDelay = $this->getConfigData('capture_delay');
         } else {
             $captureDelay = $this->_getHelper()->getCommonConfigData('capture_delay');
-        }
-
-        if ($this->getConfigData('validation_mode') !== '-1') {
-            $validationMode = $this->getConfigData('validation_mode');
-        } else {
-            $validationMode = $this->_getHelper()->getCommonConfigData('validation_mode');
         }
 
         // Activate 3DS ?
@@ -162,18 +159,17 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
                         $shippingAddress->getRegionCode() : $shippingAddress->getRegion(),
                     'phoneNumber' => $shippingAddress->getTelephone(),
                     'country' => $shippingAddress->getCountryId(),
-                    'shippingMethod' => $methodCode['type'],
-                    'shippingSpeed' => $methodCode['speed']
+                    'shippingMethod' => $methodCode['type'] ?? null,
+                    'shippingSpeed' => $methodCode['speed'] ?? null
                 )
             ),
             'transactionOptions' => array(
                 'cardOptions' => array(
                     'captureDelay' => $captureDelay,
-                    'manualValidation' => $validationMode ? 'YES' : 'NO',
                     'paymentSource' => 'EC'
                 )
             ),
-            'contrib' => $contrib . Mage::getOpenMageVersion() . '/' . Lyranetwork_Payzen_Model_Api_Api::shortPhpVersion(),
+            'contrib' => $contrib . Mage::getOpenMageVersion() . '/' . PayzenApi::shortPhpVersion(),
             'strongAuthentication' => $strongAuth,
             'currency' => $currency->getAlpha3(),
             'amount' => $currency->convertAmountToInteger($amount),
@@ -181,6 +177,15 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
                 'quote_id' => $quote->getId()
             )
         );
+
+        $validationMode = $this->getConfigData('validation_mode');
+        if (! is_null($validationMode)) {
+            $validationMode = ($validationMode === '-1') ? $this->_getHelper()->getCommonConfigData('validation_mode') : $validationMode;
+
+            if (! is_null($validationMode)) {
+                $data['transactionOptions']['cardOptions']['manualValidation'] = ($validationMode === '1') ? 'YES' : 'NO';
+            }
+        }
 
         // Set Number of attempts in case of rejected payment.
         if ($this->getConfigData('rest_attempts')) {
@@ -242,7 +247,7 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
 
         try {
             // Perform our request.
-            $client = new Lyranetwork_Payzen_Model_Api_Rest(
+            $client = new PayzenRest(
                 $this->_getHelper()->getCommonConfigData('rest_url'),
                 $login,
                 $this->_getRestHelper()->getPassword()
@@ -292,7 +297,7 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
     public function getAvailableCcTypes()
     {
         // All cards.
-        $allCards = Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes();
+        $allCards = PayzenApi::getSupportedCardTypes();
 
         // Selected cards from module configuration.
         $cards = $this->getConfigData('payment_cards');

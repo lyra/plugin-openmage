@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 class Lyranetwork_Payzen_Model_Field_Other_AddedPaymentMeans extends Lyranetwork_Payzen_Model_Field_Array
 {
     protected $_eventPrefix = 'payzen_field_added_payment_means';
@@ -15,12 +17,16 @@ class Lyranetwork_Payzen_Model_Field_Other_AddedPaymentMeans extends Lyranetwork
     protected function _beforeSave()
     {
         $values = $this->getValue();
-        $usedCards = Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes();
+        $usedCards = PayzenApi::getSupportedCardTypes();
 
         if (! is_array($values) || empty($values)) {
             $this->setValue(array());
         } else {
             foreach ($values as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
+
                 $code = trim($value['code']);
                 $title = $value['title'];
                 if (empty($code)

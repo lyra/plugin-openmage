@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 class Lyranetwork_Payzen_Model_Source_Multi_PaymentCards
 {
     protected $_allMultiCards = array(
@@ -22,7 +24,7 @@ class Lyranetwork_Payzen_Model_Source_Multi_PaymentCards
         // Add ALL value at the beginning.
         $options[] = array('value' => '', 'label' => Mage::helper('payzen')->__('ALL'));
 
-        foreach (Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes() as $code => $name) {
+        foreach (PayzenApi::getSupportedCardTypes() as $code => $name) {
             if (! in_array($code, $this->_allMultiCards)) {
                 continue;
             }
@@ -37,7 +39,7 @@ class Lyranetwork_Payzen_Model_Source_Multi_PaymentCards
     {
         $options =  array();
 
-        foreach (Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes() as $code => $name) {
+        foreach (PayzenApi::getSupportedCardTypes() as $code => $name) {
             if (! in_array($code, $this->_allMultiCards)) {
                 continue;
             }

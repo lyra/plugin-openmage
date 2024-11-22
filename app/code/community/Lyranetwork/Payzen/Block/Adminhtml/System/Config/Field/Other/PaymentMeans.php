@@ -8,6 +8,8 @@
  * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Lyranetwork\Payzen\Model\Api\Form\Api as PayzenApi;
+
 /**
  * Custom renderer for the other payment means field.
  */
@@ -24,7 +26,7 @@ class Lyranetwork_Payzen_Block_Adminhtml_System_Config_Field_Other_PaymentMeans
             )
         );
 
-        $defaultCards = Lyranetwork_Payzen_Model_Api_Api::getSupportedCardTypes();
+        $defaultCards = PayzenApi::getSupportedCardTypes();
         $addedCards = Mage::getModel('payzen/payment_other')->getAddedMeans();
 
         $cards = array_merge ($defaultCards, $addedCards);
