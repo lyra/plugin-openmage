@@ -14,7 +14,7 @@
     <!-- Version. -->
     <modules>
         <Lyranetwork_Payzen>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </Lyranetwork_Payzen>
     </modules>
 
@@ -190,17 +190,13 @@
                         <name>Card type selection on merchant site</name>
                     </action2>
                     <action3>
-                        <code>3</code>
-                        <name>Payment page integrated to checkout process (iframe mode)</name>
-                    </action3>
-                    <action4>
                         <code>4</code>
                         <name>Embedded payment fields on merchant site (REST API)</name>
-                    </action4>
-                    <action5>
+                    </action3>
+                    <action4>
                         <code>5</code>
                         <name>Embedded payment fields in a pop-in (REST API)</name>
-                    </action5>
+                    </action4>
                 </card_info_modes>
 
                 <!-- Card register modes. -->
@@ -489,7 +485,7 @@
         <payment>
             <payzen>
                 <developed_by>Lyra Network</developed_by>
-                <plugin_version>1.1.0</plugin_version>
+                <plugin_version>1.2.0</plugin_version>
                 <gateway_version>V2</gateway_version>
                 <cms_identifier>OpenMage_19-20</cms_identifier>
                 <enable_logs>1</enable_logs>

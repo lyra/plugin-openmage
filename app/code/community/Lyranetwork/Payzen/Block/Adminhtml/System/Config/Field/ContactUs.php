@@ -23,7 +23,7 @@ class Lyranetwork_Payzen_Block_Adminhtml_System_Config_Field_ContactUs extends M
      */
     public function render(Varien_Data_Form_Element_Abstract $element)
     {
-        $comment = PayzenApi::formatSupportEmails('support@payzen.eu');
+        $comment = PayzenApi::formatSupportEmails('https://payzen.io/fr-FR/support/');
         $element->setComment($comment);
 
         return parent::render($element);

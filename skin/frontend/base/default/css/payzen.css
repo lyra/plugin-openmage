@@ -90,36 +90,6 @@ a.payzen-payment-link {
     -moz-opacity: 0.65; /* FireFox */
 }
 
-#payzen_iframe_warn, #payzen_iframe_actions {
-    position: relative;
-    width: 100%;
-    background: #ffffff none repeat scroll 0 0;
-    z-index: 100;
-    display: table;
-}
-
-#payzen_iframe_warn {
-    text-align: center;
-    color: #7f7f7f;
-}
-
-#payzen_iframe_actions a {
-    font-size: 12px;
-    text-decoration: none;
-    border: 0;
-    margin-left: 15px;
-}
-
-#payzen_iframe {
-    position: relative;
-    width: 100%;
-    min-height: 530px;
-    border: 0 none;
-    background: #ffffff none repeat scroll 0 0;
-    z-index: 100;
-    margin-bottom: -5px !important;
-}
-
 .payzen_review .small {
     font-size: 10px;
 }

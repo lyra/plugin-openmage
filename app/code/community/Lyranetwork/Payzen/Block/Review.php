@@ -55,21 +55,11 @@ class Lyranetwork_Payzen_Block_Review extends Mage_Core_Block_Template
 
     public function chooseTemplate()
     {
-        if ($this->_isIframeMode()) {
-            $this->setTemplate($this->getIframeTemplate());
-        } elseif ($this->_isRestMode()) {
+        if ($this->_isRestMode()) {
             $this->setTemplate($this->getRestTemplate());
         } else {
             $this->setTemplate(null);
         }
-    }
-
-    protected function _isIframeMode()
-    {
-        $check = ($this->_getMethodInstance() instanceof Lyranetwork_Payzen_Model_Payment_Standard)
-            && $this->_getMethodInstance()->isIframeMode();
-
-        return $check;
     }
 
     protected function _isRestMode()

@@ -1,3 +1,8 @@
+1.2.0, 2025-07-22:
+- Remove the iframe payment mode.
+- Update list of supported payment means.
+- Update list of supported currencies.
+
 1.1.0, 2024-11-22:
 - Added compatibility with OpenMage and PHP latest versions.
 - [technical] Enabled some features by plugin variant.

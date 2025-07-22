@@ -175,7 +175,6 @@
 "Select how the credit card information will be entered. Attention, to use embedded payment fields, you must ensure that you have subscribed to this option with PayZen.","Wählen Sie die Eingabeart der Kreditkartendaten aus. Achtung, um eingebettete Zahlungsfelder zu verwenden, müssen Sie diese Option bei PayZen unterschrieben haben."
 "Bank data acquisition on payment gateway","Einspeisung der Karteninformationen in die Zahlungsschnittstelle"
 "Card type selection on merchant site","Auswahl des Kartentyps auf Händlerwebseite"
-"Payment page integrated to checkout process (iframe mode)","Bezahlung Seite integriert Checkout-Prozess (iframe-Modus)"
 "Embedded payment fields on merchant site (REST API)","Eingebettete Zahlungsfelder auf Händlerwebseite (REST-API)"
 "Embedded payment fields in a pop-in (REST API)","Eingebettete Zahlungsfelder in einem Pop-In (REST-API)"
 "REST API SETTINGS","REST API EINSTELLUNGEN"

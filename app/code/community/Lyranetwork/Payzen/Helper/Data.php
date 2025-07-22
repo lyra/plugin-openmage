@@ -12,7 +12,6 @@ class Lyranetwork_Payzen_Helper_Data extends Mage_Core_Helper_Abstract
 {
     const MODE_FORM = 1;
     const MODE_LOCAL_TYPE = 2;
-    const MODE_IFRAME = 3;
     const MODE_EMBEDDED = 4;
     const MODE_POPIN = 5;
     /**

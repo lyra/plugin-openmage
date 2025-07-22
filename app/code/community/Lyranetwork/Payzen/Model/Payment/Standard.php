@@ -42,23 +42,6 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
             return;
         }
 
-        $session = Mage::getSingleton('payzen/session');
-        if ($this->isIframeMode() && ! $session->getPayzenOneclickPayment() /* No iframe for 1-Click. */) {
-            // Iframe enabled and this is not 1-Click.
-            $this->_payzenRequest->set('action_mode', 'IFRAME');
-
-            // Hide logos below payment fields.
-            $this->_payzenRequest->set('theme_config', $this->_payzenRequest->get('theme_config') . '3DS_LOGOS=false;');
-
-            // Enable automatic redirection.
-            $this->_payzenRequest->set('redirect_enabled', '1');
-            $this->_payzenRequest->set('redirect_success_timeout', '0');
-            $this->_payzenRequest->set('redirect_error_timeout', '0');
-
-            $returnUrl = $this->_payzenRequest->get('url_return');
-            $this->_payzenRequest->set('url_return', $returnUrl . '?iframe=true');
-        }
-
         if ($this->getConfigData('one_click_active') && $order->getCustomerId()) {
             // Payment by token enabled and customer logged-in.
             $customer = Mage::getModel('customer/customer');
@@ -404,31 +387,6 @@ class Lyranetwork_Payzen_Model_Payment_Standard extends Lyranetwork_Payzen_Model
         $info->setCcCid(null);
 
         return $this;
-    }
-
-    /**
-     * The URL the customer is redirected to after clicking on "Confirm order".
-     *
-     * @return string
-     */
-    public function getOrderPlaceRedirectUrl()
-    {
-        if ($this->isIframeMode()) {
-            return Mage::getUrl('payzen/payment/iframe', array('_secure' => true));
-        }
-
-        return parent::getOrderPlaceRedirectUrl();
-    }
-
-    /**
-
-     * Return true if iframe mode is enabled.
-     *
-     * @return string
-     */
-    public function isIframeMode()
-    {
-        return $this->getConfigData('card_info_mode') == Lyranetwork_Payzen_Helper_Data::MODE_IFRAME;
     }
 
     /**

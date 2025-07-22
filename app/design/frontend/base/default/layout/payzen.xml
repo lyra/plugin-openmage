@@ -10,7 +10,6 @@
     <checkout_onepage_review>
         <reference name="checkout.onepage.review.info.items.before">
             <block type="payzen/review" name="payzen_review_before">
-                <action method="setIframeTemplate"><value>payzen/iframe/review.phtml</value></action>
                 <action method="setRestTemplate"><value>payzen/rest/review.phtml</value></action>
                 <action method="chooseTemplate" />
             </block>
@@ -26,17 +25,15 @@
 
         <reference name="review_info">
             <block type="payzen/review" name="payzen_review_before" as="items_before">
-                <action method="setIframeTemplate"><value>payzen/iframe/review.phtml</value></action>
                 <action method="setRestTemplate"><value>payzen/rest/review.phtml</value></action>
                 <action method="chooseTemplate" />
             </block>
         </reference>
     </onestepcheckout_index_index>
 
-     <payzen_onestepcheckout_review>
+    <payzen_onestepcheckout_review>
         <reference name="review_info">
             <block type="payzen/review" name="payzen_review_before" as="items_before">
-                <action method="setIframeTemplate"><value>payzen/iframe/review.phtml</value></action>
                 <action method="setRestTemplate"><value>payzen/rest/review.phtml</value></action>
                 <action method="chooseTemplate" />
             </block>
@@ -52,18 +49,6 @@
             <block type="payzen/redirect" name="payzen_redirect" template="payzen/redirect.phtml" />
         </reference>
     </payzen_payment_form>
-
-    <payzen_payment_iframe>
-        <reference name="root">
-            <action method="setTemplate"><template>page/empty.phtml</template></action>
-        </reference>
-
-        <reference name="content">
-            <block type="payzen/redirect" name="payzen_iframe_redirect" template="payzen/iframe/redirect.phtml">
-                <block type="core/template" name="payzen_iframe_loader" template="payzen/iframe/loader.phtml" />
-            </block>
-        </reference>
-    </payzen_payment_iframe>
 
     <payzen_oneclick_shipping_method>
         <remove name="right" />
