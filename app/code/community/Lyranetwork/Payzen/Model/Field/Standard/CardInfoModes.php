@@ -15,14 +15,13 @@ class Lyranetwork_Payzen_Model_Field_Standard_CardInfoModes extends Mage_Core_Mo
     public function save()
     {
         $value = $this->getValue();
-        $iframeAndEmbedded = array(
-            Lyranetwork_Payzen_Helper_Data::MODE_IFRAME,
+        $embedded = array(
             Lyranetwork_Payzen_Helper_Data::MODE_EMBEDDED,
             Lyranetwork_Payzen_Helper_Data::MODE_POPIN
         );
 
-        if (in_array($value, $iframeAndEmbedded) && ! $this->_isFrontSecure()) { // IFRAME mode or REST API.
-            $this->_message = Mage::helper('payzen')->__('The iframe mode and the embedded payment fields cannot be used without enabling SSL.');
+        if (in_array($value, $embedded) && ! $this->_isFrontSecure()) { // REST API mode.
+            $this->_message = Mage::helper('payzen')->__('The embedded payment fields cannot be used without enabling SSL.');
             $this->setValue(1);
         }
 

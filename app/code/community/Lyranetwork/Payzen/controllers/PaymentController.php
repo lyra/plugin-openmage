@@ -21,53 +21,6 @@ class Lyranetwork_Payzen_PaymentController extends Mage_Core_Controller_Front_Ac
     }
 
     /**
-     * Redirect customer to the payment gateway iframe.
-     */
-    public function iframeAction()
-    {
-        $this->_getDataHelper()->log('Start =================================================');
-        $this->_getPaymentHelper()->doPaymentForm($this);
-        $this->_getDataHelper()->log('End =================================================');
-    }
-
-    /**
-     * Display iframe loader.
-     */
-    public function loaderAction()
-    {
-        $this->_getDataHelper()->log('Start =================================================');
-        if ($this->getRequest()->getParam('mode', null) === 'cancel') {
-            // Load order.
-            $lastIncrementId = $this->getCheckout()->getLastRealOrderId();
-            $order = Mage::getModel('sales/order');
-            $order->loadByIncrementId($lastIncrementId);
-
-            if ($order->getId()) {
-                $this->_getDataHelper()->log("Cancel order #{$order->getIncrementId()} to allow payment retry.");
-                $order->registerCancellation($this->__('Payment canceled.'))->save();
-
-                $this->_getDataHelper()->log("Clean session for #{$order->getIncrementId()} and restore last quote if any.");
-                $this->getCheckout()->setLastBillingAgreementId(null)
-                    ->setRedirectUrl(null)
-                    ->setLastOrderId(null)
-                    ->setLastRealOrderId(null)
-                    ->setLastRecurringProfileIds(null)
-                    ->setAdditionalMessages(null);
-
-                $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
-                if ($quote->getId()) {
-                    $quote->setIsActive(true)->setReservedOrderId(null)->save();
-                    $this->getCheckout()->replaceQuote($quote);
-                }
-            }
-        }
-
-        $block = $this->getLayout()->createBlock('core/template')->setTemplate('payzen/iframe/loader.phtml');
-        $this->getResponse()->setBody($block->toHtml());
-        $this->_getDataHelper()->log('End =================================================');
-    }
-
-    /**
      * Action called after the client returns from payment gateway.
      */
     public function returnAction()
@@ -554,26 +507,6 @@ class Lyranetwork_Payzen_PaymentController extends Mage_Core_Controller_Front_Ac
                 $this->_getDataHelper()->log("Redirecting to cart page for order #{$order->getIncrementId()}.");
                 $this->_redirect('checkout/cart', array('_store' => $storeId));
             }
-        }
-    }
-
-    /**
-     * Set redirect into response.
-     *
-     * @param  string $path
-     * @param  array  $arguments
-     * @return Mage_Core_Controller_Varien_Action
-     */
-    protected function _redirect($path, $arguments = array())
-    {
-        if ($this->getRequest()->getParam('iframe', false) /* if iframe payment */) {
-            $block = $this->getLayout()->createBlock('payzen/iframe_response')
-                ->setForwardUrl(Mage::getUrl($path, $arguments));
-
-            $this->getResponse()->setBody($block->toHtml());
-            return $this;
-        } else {
-            return parent::_redirect($path, $arguments);
         }
     }
 
